@@ -6,12 +6,15 @@ import { WoocommerceService } from '../wordpress/woocommerce/woocommerce.service
 export class ProductsService {
   constructor(private readonly woocommerceService: WoocommerceService) {}
 
+  /**
+   * Busca productos en WooCommerce que coincidan con un término de búsqueda.
+   * @param query - El término de búsqueda para encontrar productos. Ejemplo: "camiseta".
+   * @returns Una promesa que se resuelve en un arreglo de ProductDto.
+   */
   async searchProducts(query: string): Promise<ProductDto[]> {
     console.log(`Buscando productos en WooCommerce con la consulta: ${query}`);
 
     const wooProducts = await this.woocommerceService.findProductsByName(query);
-
-    // Mapeamos la respuesta de WooCommerce a nuestro DTO normalizado
     return wooProducts;
   }
 }
