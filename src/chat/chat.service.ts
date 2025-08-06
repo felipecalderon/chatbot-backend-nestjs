@@ -10,9 +10,21 @@ export class ChatService {
     private readonly productsService: ProductsService,
   ) {}
 
-  async processMessage(message: string): Promise<ChatResponse | null> {
-    console.log(`Processing message in ChatService: ${message}`);
+  async processMessage(message: ChatResponse[]): Promise<ChatResponse> {
     const genericResponse = await this.openaiService.generateResponse(message);
-    return { response: genericResponse, products: [] };
+
+    if (genericResponse) {
+      return genericResponse;
+    }
+
+    return {
+      response: {
+        role: 'assistant',
+        refusal: null,
+        content:
+          'Lo siento mucho, el sistema está fallando, no puedo ver el chat ni generar respuestas :(',
+      },
+      products: [],
+    };
   }
 }

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
+import { ChatResponse } from 'src/common/interfaces/chat-response.interface';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -16,18 +17,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(private readonly chatService: ChatService) {}
 
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log(`Client connected: ${client.id}`);
+  handleConnection(client: Socket) {
+    console.log(`Cliente conectado: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    console.log(`Cliente desconectado: ${client.id}`);
   }
 
   @SubscribeMessage('user_message')
-  async handleMessage(@MessageBody() data: string): Promise<void> {
+  async handleMessage(@MessageBody() data: ChatResponse[]): Promise<void> {
     const processedMessage = await this.chatService.processMessage(data);
-    console.log(processedMessage);
     this.server.emit('bot_reply', processedMessage);
   }
 }

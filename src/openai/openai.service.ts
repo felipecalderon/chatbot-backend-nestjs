@@ -1,32 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { OpenaiClient } from './openai.client';
 import { systemPrompt } from './prompts/system';
-import { ChatCompletionMessage } from 'openai/resources';
+import {
+  ChatCompletionMessage,
+  ChatCompletionMessageParam,
+} from 'openai/resources';
+import { ChatResponse } from 'src/common/interfaces/chat-response.interface';
 
 @Injectable()
 export class OpenaiService {
   constructor(private readonly openaiClient: OpenaiClient) {}
 
   private async getCompletion(
-    prompt: string,
-  ): Promise<ChatCompletionMessage | null> {
+    messages: ChatResponse[],
+  ): Promise<ChatResponse | null> {
     try {
+      const messagesOpenAI: ChatCompletionMessage[] = messages.map(
+        (message) => ({
+          role: message.response.role,
+          content: message.response.content,
+          refusal: null,
+        }),
+      );
+
       const completion = await this.openaiClient.openai.chat.completions.create(
         {
-          messages: [systemPrompt, { role: 'user', content: prompt }],
+          messages: [systemPrompt, ...messagesOpenAI],
           model: 'gpt-4o-mini',
         },
       );
-      return completion.choices[0].message;
+
+      const responseAI = completion.choices[0].message;
+      return { response: responseAI, products: [] };
     } catch (error) {
       console.error('Error getting completion from OpenAI:', error);
-      return null; // Devolvemos null para que el servicio que lo llama pueda manejar el error
+      return null;
     }
   }
 
   async generateResponse(
-    prompt: string,
-  ): Promise<ChatCompletionMessage | null> {
-    return this.getCompletion(prompt);
+    messages: ChatResponse[],
+  ): Promise<ChatResponse | null> {
+    return this.getCompletion(messages);
   }
 }
