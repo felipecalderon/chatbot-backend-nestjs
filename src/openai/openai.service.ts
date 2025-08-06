@@ -15,9 +15,7 @@ export class OpenaiService {
    * @param messages - Un arreglo de mensajes que representa la conversación actual.
    * @returns Una promesa que se resuelve en un objeto ChatResponse o null si ocurre un error.
    */
-  private async getCompletion(
-    messages: ChatResponse[],
-  ): Promise<ChatResponse | null> {
+  private async getCompletion(messages: ChatResponse[]): Promise<ChatResponse> {
     try {
       const messagesOpenAI: ChatCompletionMessage[] = messages.map(
         (message) => ({
@@ -39,8 +37,7 @@ export class OpenaiService {
       const responseAI = completion.choices[0].message;
       return { response: responseAI, products: [] };
     } catch (error) {
-      console.error('Error getting completion from OpenAI:', error);
-      return null;
+      throw new Error('Error getting completion from OpenAI:', error);
     }
   }
 

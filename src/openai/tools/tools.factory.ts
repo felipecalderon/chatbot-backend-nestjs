@@ -12,14 +12,14 @@ export class ToolsFactory {
         function: {
           name: 'search_products',
           description:
-            'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por uno o más artículos.',
+            'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por uno o más artículos, devuelve siempre un arreglo de productos, aunque sea uno o vacío.',
           parameters: {
             type: 'object',
             properties: {
               query: {
                 type: 'string',
                 description:
-                  'La consulta de búsqueda del usuario para encontrar productos. Ejemplo: "zapatillas deportivas para correr", "café de colombia"',
+                  'La consulta de búsqueda del usuario para encontrar productos. Ejemplo: "[zapatillas deportivas para correr", "café de colombia"]',
               },
             },
             required: ['query'],

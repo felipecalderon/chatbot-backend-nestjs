@@ -20,12 +20,14 @@ export class ChatService {
     const botResponse = await this.openaiService.generateResponse(message);
 
     // Caso 1: OpenAI decide llamar a una tool (buscar productos)
-    if (botResponse.response.tool_calls) {
+    if (botResponse?.response.tool_calls) {
       const toolCall = botResponse.response.tool_calls[0];
-      const { query } = JSON.parse(toolCall.function.arguments);
+      const { query } = JSON.parse(toolCall.function.arguments) as {
+        query: string;
+      };
 
       console.log(`Tool call detectada: ${toolCall.function.name}`);
-      console.log(`Argumentos: ${JSON.stringify({ query })}`);
+      console.log(`Argumentos: ${query}`);
 
       const products = await this.productsService.searchProducts(query);
 
@@ -33,7 +35,7 @@ export class ChatService {
       return {
         response: {
           role: 'assistant',
-          content: `He encontrado ${products.length} productos relacionados con tu búsqueda "${query}".`,
+          content: `Encontré: ${products.length} productos, espero te sirvan y sino me avisas porfavor, gracias!`,
           refusal: null,
         },
         products,
@@ -51,7 +53,7 @@ export class ChatService {
         role: 'assistant',
         refusal: null,
         content:
-          'Lo siento mucho, el sistema está fallando, no puedo ver el chat ni generar respuestas :(',
+          'Lo siento mucho, el sistema está fallando, no puedo leer el chat ni generar respuestas :(',
       },
       products: [],
     };
