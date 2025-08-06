@@ -29,6 +29,9 @@ importers:
       '@nestjs/websockets':
         specifier: ^11.1.5
         version: 11.1.5(@nestjs/common@11.1.5(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.5)(@nestjs/platform-socket.io@11.1.5)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      axios:
+        specifier: ^1.11.0
+        version: 1.11.0
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -38,6 +41,9 @@ importers:
       openai:
         specifier: ^5.11.0
         version: 5.11.0
+      pluralize:
+        specifier: ^8.0.0
+        version: 8.0.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -72,6 +78,9 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.17.0
+      '@types/pluralize':
+        specifier: ^0.0.33
+        version: 0.0.33
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
@@ -871,6 +880,9 @@ packages:
 
   '@types/node@22.17.0':
     resolution: {integrity: sha512-bbAKTCqX5aNVryi7qXVMi+OkB3w/OyblodicMbvE38blyAz7GxXf6XYhklokijuPwwVg9sDLKRxt0ZHXQwZVfQ==}
+
+  '@types/pluralize@0.0.33':
+    resolution: {integrity: sha512-JOqsl+ZoCpP4e8TDke9W79FDcSgPAR0l6pixx2JHkhnRjvShyYiAYw2LVsnA7K08Y6DeOnaU6ujmENO4os/cYg==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -4137,6 +4149,8 @@ snapshots:
   '@types/node@22.17.0':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/pluralize@0.0.33': {}
 
   '@types/qs@6.14.0': {}
 
