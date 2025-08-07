@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { CustomIoAdapter } from './io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,8 +20,6 @@ async function bootstrap() {
       transform: true, // Transforma el payload a una instancia del DTO
     }),
   );
-
-  // app.useWebSocketAdapter(new CustomIoAdapter(app));
 
   console.log('sirviendo en puerto:', process.env.PORT);
   await app.listen(process.env.PORT ?? 3001);
