@@ -24,6 +24,7 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new CustomIoAdapter(app));
 
+  console.log('sirviendo en puerto:', process.env.PORT);
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
