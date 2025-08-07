@@ -30,7 +30,7 @@ async function bootstrap() {
 
   console.log('sirviendo en puerto:', process.env.PORT);
   console.log('cors:', originDomains);
-  console.log('url app: ', app.getUrl());
   await app.listen(process.env.PORT ?? 3001);
+  console.log('url app: ', await app.getUrl());
 }
 bootstrap();
