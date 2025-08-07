@@ -14,7 +14,7 @@ import { ConfigService } from 'src/config/config.service';
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  private server: Server;
 
   constructor(
     private readonly chatService: ChatService,

@@ -10,6 +10,7 @@ async function bootstrap() {
   const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',').map((url) =>
     url.trim().replace(/;$/, ''),
   ) ?? ['*'];
+
   app.enableCors({
     origin: originDomains, // O un array de dominios: ['http://example.com']
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -29,6 +30,7 @@ async function bootstrap() {
 
   console.log('sirviendo en puerto:', process.env.PORT);
   console.log('cors:', originDomains);
+  console.log('url app: ', app.getUrl());
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
