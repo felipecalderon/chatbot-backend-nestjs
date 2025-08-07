@@ -11,6 +11,7 @@
 ## 1. Project Objective
 
 Create a real-time chatbot that:
+
 - Responds to product/price queries by connecting with WooCommerce (WordPress).
 - Uses OpenAI to interpret natural language.
 - Exposes a WebSocket gateway (Socket.IO) for direct user interaction.
@@ -71,6 +72,7 @@ Create a real-time chatbot that:
 
 1. Create a `.env` file in the root of the project, based on the `env.example` file.
 2. Fill in the required environment variables:
+
    ```env
    NODE_ENV=development
    PORT=3000
