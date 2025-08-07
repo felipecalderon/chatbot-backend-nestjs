@@ -37,7 +37,10 @@ export class OpenaiService {
       const responseAI = completion.choices[0].message;
       return { response: responseAI, products: [] };
     } catch (error) {
-      throw new Error('Error getting completion from OpenAI:', error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Error getting completion from OpenAI:');
     }
   }
 

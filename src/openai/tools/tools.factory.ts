@@ -6,26 +6,58 @@ export class ToolsFactory {
    * @returns Un arreglo de objetos ChatCompletionTool.
    */
   static getTools(): ChatCompletionTool[] {
-    return [
-      {
-        type: 'function',
-        function: {
-          name: 'search_products',
-          description:
-            'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por uno o más artículos, devuelve siempre un arreglo de productos, aunque sea uno o vacío.',
-          parameters: {
-            type: 'object',
-            properties: {
-              query: {
-                type: 'string',
-                description:
-                  'La consulta de búsqueda del usuario para encontrar productos. Ejemplo: "[zapatillas deportivas para correr", "café de colombia"]',
-              },
-            },
-            required: ['query'],
+    return [ToolsFactory.searchProducts];
+  }
+
+  static searchProducts: ChatCompletionTool = {
+    type: 'function',
+    function: {
+      name: 'search_products',
+      description:
+        'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por uno o más artículos, devuelve siempre un arreglo de productos, aunque sea uno o vacío.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description:
+              'La consulta de búsqueda del usuario para encontrar productos. Ejemplo: "[zapatillas deportivas para correr", "café de colombia"]',
           },
         },
+        required: ['query'],
       },
-    ];
-  }
+    },
+  };
+
+  static getUserData: ChatCompletionTool = {
+    type: 'function',
+    function: {
+      name: 'get_user_data',
+      description: 'El usuario entregó uno o varios datos personales',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'Nombre del usuario, ejemplo: Juan José Pingao',
+          },
+          email: {
+            type: 'string',
+            description: 'correo del usuario: ejemplo: juan@yahoo.com',
+          },
+          phone: {
+            type: 'string',
+            description:
+              'Teléfono del usuario, formato de ejemplo: +569 8877 6655',
+          },
+          interests: {
+            type: 'string',
+            description:
+              'Arreglo de string, productos o categorías que le interesan al usuario: Ej: [pinturas, mallas, osb]',
+          },
+        },
+        required: [],
+      },
+    },
+  };
 }
