@@ -7,7 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Habilitar CORS para permitir solicitudes desde cualquier origen.
-  const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',') ?? ['*'];
+  const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',').map((url) =>
+    url.trim().replace(/;$/, ''),
+  ) ?? ['*'];
   app.enableCors({
     origin: originDomains, // O un array de dominios: ['http://example.com']
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

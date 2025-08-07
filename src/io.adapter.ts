@@ -3,7 +3,9 @@ import { ServerOptions } from 'socket.io';
 
 export class CustomIoAdapter extends IoAdapter {
   createIOServer(port: number, options?: ServerOptions): any {
-    const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',') ?? ['*'];
+    const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',').map(
+      (url) => url.trim().replace(/;$/, ''),
+    ) ?? ['*'];
     const cors = {
       origin: originDomains, // O ['http://localhost:5173']
       methods: ['GET', 'POST'],
