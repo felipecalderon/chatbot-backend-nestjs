@@ -7,8 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Habilitar CORS para permitir solicitudes desde cualquier origen.
+  const originDomains = process.env.DOMAIN_ALLOWED_CORS?.split(',') ?? ['*'];
   app.enableCors({
-    origin: '*', // O un array de dominios: ['http://example.com']
+    origin: originDomains, // O un array de dominios: ['http://example.com']
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
@@ -25,6 +26,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(new CustomIoAdapter(app));
 
   console.log('sirviendo en puerto:', process.env.PORT);
+  console.log('cors:', originDomains);
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
