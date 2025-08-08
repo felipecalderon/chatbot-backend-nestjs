@@ -27,15 +27,6 @@ export interface ChatSession {
    */
   lastSearch?: {
     /**
-     * @property {string} query - La consulta de búsqueda original del usuario (ej. "zapatillas para correr").
-     */
-    query: string;
-    /**
-     * @property {any} params - Los parámetros enviados al motor de búsqueda (ej. cliente de WooCommerce).
-     * Esto podría incluir categorías, etiquetas u otros filtros.
-     */
-    params: any;
-    /**
      * @property {number} currentPage - El número de página actual de los resultados de búsqueda que se ha mostrado.
      */
     currentPage: number;

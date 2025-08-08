@@ -5,7 +5,6 @@ import { ChatResponse } from '../common/interfaces/chat-response.interface';
 import { ConfigService } from 'src/config/config.service';
 import { ChatSessionService } from './session/chat-session.service';
 import { ChatSession } from './session/chat-session.interface';
-import { ChatCompletionMessageParam } from 'openai/resources';
 
 @Injectable()
 export class ChatService {
@@ -44,36 +43,23 @@ export class ChatService {
       const toolCall = botResponse.tool_calls[0];
 
       if (toolCall.function.name === 'search_products') {
-        const { query } = JSON.parse(toolCall.function.arguments) as {
-          query: string;
-        };
-        const products = await this.productsService.searchProducts(query);
+        // Paso 1.1: Buscar los productos de la API.
+        const { response, products } =
+          await this.productsService.searchProductTool(
+            toolCall.function.arguments,
+          );
 
-        // Paso 2: Formatear la lista de productos en un texto para la respuesta del asistente.
-        const productListText = products
-          .map((p, i) => `${i + 1}. **${p.name}** - ${p.price}`)
-          .join('\n'); // Correctly escaped newline
-
-        const content = `¡Claro! Encontré estos productos basados en tu búsqueda "${query}":\n${productListText}\n¿Te gustaría ver más detalles de alguno?`; // Correctly escaped quotes and newlines
-
-        const assistantMessage: ChatCompletionMessageParam = {
-          role: 'assistant',
-          content,
-        };
-
-        // Paso 3: Actualizar la sesión con los resultados de la búsqueda y el mensaje del asistente.
+        // Paso 1.2: Actualizar la sesión con los resultados de la búsqueda y el mensaje del asistente.
         this.sessionService.updateSession(session.sessionId, {
-          messages: [...session.messages, assistantMessage],
+          messages: [...session.messages, response],
           lastSearch: {
-            query,
-            params: { query }, // Guardar parámetros para posible paginación futura.
             currentPage: 1,
             totalResults: products.length,
             products: products, // Mantener los objetos de producto completos.
           },
         });
 
-        return { response: assistantMessage, products };
+        return { response, products };
       }
 
       // Caso de respaldo para otras llamadas a herramientas no implementadas.
