@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { OpenaiClient } from './openai.client';
 import { systemPrompt } from './prompts/system';
-import { ChatCompletionMessage } from 'openai/resources';
+import {
+  ChatCompletionMessage,
+  ChatCompletionMessageParam,
+} from 'openai/resources';
 import { ChatResponse } from 'src/common/interfaces/chat-response.interface';
 import { ToolsFactory } from './tools/tools.factory';
 
@@ -15,19 +18,13 @@ export class OpenaiService {
    * @param messages - Un arreglo de mensajes que representa la conversación actual.
    * @returns Una promesa que se resuelve en un objeto ChatResponse o null si ocurre un error.
    */
-  private async getCompletion(messages: ChatResponse[]): Promise<ChatResponse> {
+  private async getCompletion(
+    messages: ChatCompletionMessageParam[],
+  ): Promise<ChatCompletionMessage> {
     try {
-      const messagesOpenAI: ChatCompletionMessage[] = messages.map(
-        (message) => ({
-          role: message.response.role,
-          content: message.response.content,
-          refusal: null,
-        }),
-      );
-
       const completion = await this.openaiClient.openai.chat.completions.create(
         {
-          messages: [systemPrompt, ...messagesOpenAI],
+          messages: [systemPrompt, ...messages],
           model: 'gpt-4o-mini',
           tools: ToolsFactory.getTools(), // <--- AÑADIMOS LAS TOOLS
           tool_choice: 'auto', // <--- DEJAMOS QUE OPENAI DECIDA
@@ -35,7 +32,7 @@ export class OpenaiService {
       );
 
       const responseAI = completion.choices[0].message;
-      return { response: responseAI, products: [] };
+      return responseAI;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -51,8 +48,8 @@ export class OpenaiService {
    * @returns Una promesa que se resuelve en un objeto ChatResponse o null en caso de error.
    */
   async generateResponse(
-    messages: ChatResponse[],
-  ): Promise<ChatResponse | null> {
+    messages: ChatCompletionMessageParam[],
+  ): Promise<ChatCompletionMessage | null> {
     return this.getCompletion(messages);
   }
 }

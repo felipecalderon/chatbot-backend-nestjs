@@ -3,6 +3,9 @@ import { OpenaiService } from '../openai/openai.service';
 import { ProductsService } from '../products/products.service';
 import { ChatResponse } from '../common/interfaces/chat-response.interface';
 import { ConfigService } from 'src/config/config.service';
+import { ChatSessionService } from './session/chat-session.service';
+import { ChatSession } from './session/chat-session.interface';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 @Injectable()
 export class ChatService {
@@ -10,66 +13,96 @@ export class ChatService {
     private readonly openaiService: OpenaiService,
     private readonly productsService: ProductsService,
     private readonly configService: ConfigService,
+    private readonly sessionService: ChatSessionService,
   ) {}
 
   /**
-   * Procesa un mensaje entrante, lo envía a OpenAI para obtener una intención
-   * y genera una respuesta, buscando productos si es necesario.
-   * @param message - El historial de chat actual, incluyendo el último mensaje del usuario.
-   * @returns Una promesa que se resuelve en un objeto ChatResponse con la respuesta del asistente y/o los productos encontrados.
+   * Procesa el mensaje de un usuario dentro de una sesión específica.
+   *
+   * @param {ChatSession} session - El estado actual de la sesión de chat del usuario.
+   * @param {ChatResponse} userMessage - El último mensaje enviado por el usuario.
+   * @returns {Promise<ChatResponse>} Una promesa que se resuelve en la respuesta del chatbot,
+   * que puede incluir texto y/o una lista de productos.
    */
-  async processMessage(message: ChatResponse[]): Promise<ChatResponse> {
-    const botResponse = await this.openaiService.generateResponse(message);
+  async processMessage(
+    session: ChatSession,
+    userMessage: ChatResponse,
+  ): Promise<ChatResponse> {
+    // Paso 1: Actualizar la sesión con el nuevo mensaje del usuario.
+    session.messages.push(userMessage.response);
 
-    // Caso 1: OpenAI decide llamar a una tool
-    if (botResponse?.response.tool_calls) {
+    const botResponse = await this.openaiService.generateResponse(
+      session.messages,
+    );
+
+    // Caso 1: OpenAI decide llamar a una herramienta (tool).
+    if (botResponse?.tool_calls) {
       this.configService.emit('loading', {
         loading: true,
-        message: 'Buscando productos...',
+        message: 'Buscando productos...', // Correctly escaped string
       });
-      const toolCall = botResponse.response.tool_calls[0];
+      const toolCall = botResponse.tool_calls[0];
 
-      console.log(`Tool call detectada: ${toolCall.function.name}`);
-
-      // Caso 1.1: OpenAI decide llamar a la tool buscar productos
       if (toolCall.function.name === 'search_products') {
         const { query } = JSON.parse(toolCall.function.arguments) as {
           query: string;
         };
         const products = await this.productsService.searchProducts(query);
-        return {
-          response: {
-            role: 'assistant',
-            content: `Encontré: ${products.length} productos, espero te sirvan y sino me avisas porfavor, gracias!`,
-            refusal: null,
-          },
-          products,
+
+        // Paso 2: Formatear la lista de productos en un texto para la respuesta del asistente.
+        const productListText = products
+          .map((p, i) => `${i + 1}. **${p.name}** - ${p.price}`)
+          .join('\n'); // Correctly escaped newline
+
+        const content = `¡Claro! Encontré estos productos basados en tu búsqueda "${query}":\n${productListText}\n¿Te gustaría ver más detalles de alguno?`; // Correctly escaped quotes and newlines
+
+        const assistantMessage: ChatCompletionMessageParam = {
+          role: 'assistant',
+          content,
         };
+
+        // Paso 3: Actualizar la sesión con los resultados de la búsqueda y el mensaje del asistente.
+        this.sessionService.updateSession(session.sessionId, {
+          messages: [...session.messages, assistantMessage],
+          lastSearch: {
+            query,
+            params: { query }, // Guardar parámetros para posible paginación futura.
+            currentPage: 1,
+            totalResults: products.length,
+            products: products, // Mantener los objetos de producto completos.
+          },
+        });
+
+        return { response: assistantMessage, products };
       }
 
-      // Caso 1.n: Si el llamado a la tool no retornó un mensaje se envía mensaje genérico
+      // Caso de respaldo para otras llamadas a herramientas no implementadas.
       return {
         response: {
           role: 'assistant',
-          content: `Genial! ¿Hay algo más en lo que te pueda ayudar?`,
-          refusal: null,
+          content: `Genial! ¿Hay algo más en lo que te pueda ayudar?`, // Correctly escaped string
         },
         products: [],
       };
     }
 
-    // Caso 2: Respuesta de texto normal de OpenAI
+    // Caso 2: Respuesta de texto normal de OpenAI (sin llamada a herramienta).
     if (botResponse) {
-      return botResponse;
+      this.sessionService.updateSession(session.sessionId, {
+        messages: [...session.messages, botResponse],
+      });
+      return {
+        response: botResponse,
+        products: [],
+      };
     }
 
-    // Caso 3: Error general
+    // Caso 3: Error general o respuesta inesperada.
     return {
       response: {
         role: 'assistant',
-        refusal: null,
         content:
-          'Lo siento mucho, el sistema está fallando, no puedo leer el chat ni generar respuestas :(',
+          'Lo siento mucho, el sistema está fallando, no puedo leer el chat ni generar respuestas :(', // Correctly escaped string
       },
       products: [],
     };
