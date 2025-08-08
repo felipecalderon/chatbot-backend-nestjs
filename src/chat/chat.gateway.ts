@@ -26,6 +26,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   handleConnection(client: Socket) {
     console.log(`Cliente conectado: ${client.id}`);
+
+    client.on('connect_error', (err) => {
+      console.error(`Error en conexión del cliente ${client.id}:`, err);
+    });
+
+    client.on('error', (err) => {
+      console.error(`Error general del socket ${client.id}:`, err.message);
+    });
   }
 
   handleDisconnect(client: Socket) {
