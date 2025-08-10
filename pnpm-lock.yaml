@@ -41,9 +41,6 @@ importers:
       openai:
         specifier: ^5.11.0
         version: 5.11.0
-      pluralize:
-        specifier: ^8.0.0
-        version: 8.0.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
