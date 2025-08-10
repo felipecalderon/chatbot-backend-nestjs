@@ -14,14 +14,14 @@ export class ToolsFactory {
     function: {
       name: 'search_products',
       description:
-        'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por uno o más artículos, devuelve siempre un arreglo de productos, aunque sea uno o vacío.',
+        'Busca productos en la tienda de WooCommerce cuando el usuario pregunta explícitamente por un artículo, el producto devuelto siempre será en singular.',
       parameters: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
             description:
-              'La consulta de búsqueda del usuario para encontrar productos. Ejemplo: "[zapatillas deportivas para correr", "café de colombia"]',
+              'La consulta de búsqueda del usuario para encontrar productos en singular. Ej: si el usuario buscó "cables", la consulta será "cable"',
           },
         },
         required: ['query'],

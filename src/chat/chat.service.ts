@@ -44,10 +44,16 @@ export class ChatService {
 
       if (toolCall.function.name === 'search_products') {
         // Paso 1.1: Buscar los productos de la API.
+        interface QuerySearchProducts {
+          query: string;
+        }
+
+        const { query } = JSON.parse(
+          toolCall.function.arguments,
+        ) as QuerySearchProducts;
+
         const { response, products } =
-          await this.productsService.searchProductTool(
-            toolCall.function.arguments,
-          );
+          await this.productsService.searchProductTool(query);
 
         // Paso 1.2: Actualizar la sesión con los resultados de la búsqueda y el mensaje del asistente.
         this.sessionService.updateSession(session.sessionId, {

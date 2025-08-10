@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ProductDto } from './dtos/product.dto';
 import { WoocommerceService } from '../wordpress/woocommerce/woocommerce.service';
 import { ChatCompletionMessageParam } from 'openai/resources';
-import { toSingular } from 'src/common/utils/text-format.util';
 
 @Injectable()
 export class ProductsService {
@@ -15,16 +14,11 @@ export class ProductsService {
    */
   async searchProducts(query: string): Promise<ProductDto[]> {
     console.log(`Buscando productos en WooCommerce con la consulta: ${query}`);
-    const wooProducts = await this.woocommerceService.findProductsByName(
-      toSingular(query),
-    );
+    const wooProducts = await this.woocommerceService.findProductsByName(query);
     return wooProducts;
   }
 
-  async searchProductTool(argumentos: string) {
-    const { query } = JSON.parse(argumentos) as {
-      query: string;
-    };
+  async searchProductTool(query: string) {
     const products = await this.searchProducts(query);
     if (!products.length) {
       const content = `Oh, no encuentro nada con: "${query}", puede ser que esté con otro nombre o quizás no lo trabajamos :C`;
